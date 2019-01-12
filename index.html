@@ -8,10 +8,17 @@
   <meta name="description" content="Fretboard App">
   <meta name="author" content="Frank Ford">
 
+  <!--  Import Tonal Library  -->
+  <script src="js/tonal.min.js"></script>
+
 </head>
 
 <body>
-<p>Testing GitHub Connection</p>
+<p>See Console: Tonal Test  Expected Output: [ 'F', 'Ab', 'Cb', 'Eb' ]</p>
 
+<script>
+var myout = Tonal.Chord.notes("Fm7b5");
+console.log("myout: "+myout);
+</script>
 </body>
 </html>
