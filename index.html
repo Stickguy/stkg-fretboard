@@ -12,6 +12,8 @@
   <script src="js/tonal.min.js"></script>
   <!--  Import d3  -->
   <script src="js/d3.min.js"></script>
+  <!--  Import fretboard  -->
+  <script src="js/fretboard.js"></script>
 </head>
 
 <body>
@@ -27,6 +29,9 @@ console.log("myout: "+myout);
 d3.selectAll("p").style("color", function() {
   return "hsl(" + Math.random() * 360 + ",100%,50%)";
 });
+
+/* Test value from fretboard */
+d3.selectAll("p").text(allNotes);
 
 </script>
 </body>
