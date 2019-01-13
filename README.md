@@ -3,5 +3,9 @@
 A javascript fretboard component
 
 Dependencies:
-Tonal Music API: http://danigb.github.io/tonal/api/index.html
+Tonal Music API: https://github.com/danigb/tonal
+d3js: https://d3js.org/
+
+
+
 # stkg-fretboard

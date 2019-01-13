@@ -10,15 +10,24 @@
 
   <!--  Import Tonal Library  -->
   <script src="js/tonal.min.js"></script>
-
+  <!--  Import d3  -->
+  <script src="js/d3.min.js"></script>
 </head>
 
 <body>
 <p>See Console: Tonal Test  Expected Output: [ 'F', 'Ab', 'Cb', 'Eb' ]</p>
 
 <script>
+
+/* Tonal Test */
 var myout = Tonal.Chord.notes("Fm7b5");
 console.log("myout: "+myout);
+
+/* d3 Test */
+d3.selectAll("p").style("color", function() {
+  return "hsl(" + Math.random() * 360 + ",100%,50%)";
+});
+
 </script>
 </body>
 </html>
