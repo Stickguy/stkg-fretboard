@@ -53,3 +53,21 @@ var Tunings = {
 
 
 };
+
+
+var fretboardHTML = document.getElementById("fretboard-wrap");
+var Fretboard = function(init) {
+
+init = init || {};
+var where = init.where || fretboardHTML; // logical operator "||" use requires this element/id's existence on page prior to firing off javascript.
+/* PICKUP Reconfigure this to use new model */
+var instance = {
+        frets: init.frets || 12,
+        startFret: init.startFret || 0,
+        strings: init.strings || 6,
+        tuning: init.tuning || Tunings.Guitar6.standard,
+        fretWidth: 50,
+        fretHeight: 20
+    };
+
+}

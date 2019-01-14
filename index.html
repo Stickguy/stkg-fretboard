@@ -19,6 +19,8 @@
 <body>
 <p>See Console: Tonal Test  Expected Output: [ 'F', 'Ab', 'Cb', 'Eb' ]</p>
 
+<div id="fretboard-wrap"></div>
+
 <script>
 
 /* Tonal Test */
@@ -33,7 +35,7 @@ d3.selectAll("p").style("color", function() {
 /* Test value from fretboard */
 d3.selectAll("p").text(allNotes);
 
-console.table(Tunings);
+console.table(Tunings.Guitar.standard.tuning);
 
 </script>
 </body>
