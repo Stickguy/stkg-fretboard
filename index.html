@@ -14,28 +14,38 @@
   <script src="js/d3.min.js"></script>
   <!--  Import fretboard  -->
   <script src="js/fretboard.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/fretboard.css"/>
 </head>
 
 <body>
-<p>See Console: Tonal Test  Expected Output: [ 'F', 'Ab', 'Cb', 'Eb' ]</p>
-
 <div id="fretboard-wrap"></div>
-
+<p>
+  PICKUP: Start adding logic to deal with new chord configuration
+</p>
 <script>
 
 /* Tonal Test */
-var myout = Tonal.Chord.notes("Fm7b5");
+ var myout = Tonal.Chord.names();
 console.log("myout: "+myout);
 
 /* d3 Test */
-d3.selectAll("p").style("color", function() {
+/* d3.selectAll("p").style("color", function() {
   return "hsl(" + Math.random() * 360 + ",100%,50%)";
-});
+}); */
 
 /* Test value from fretboard */
-d3.selectAll("p").text(allNotes);
+/* d3.selectAll("p").text(allNotes); */
 
-console.table(Tunings.Guitar.standard.tuning);
+/* Test tuning JSON structure */
+/* console.table(ModTunings.Guitar.standard.tuning); */
+
+/* Test Fretboard init */
+var fretboard = Fretboard();
+//works
+//fretboard.draw("C E G");
+fretboard.draw("C Maj7"); //  C Maj7  C major
+
+//console.table(fretboard.settings);
 
 </script>
 </body>
