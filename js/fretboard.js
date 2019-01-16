@@ -16,7 +16,7 @@ var allNotesEnh = [
 var colors = ["red", "green", "blue", "black", "purple", "gray", "orange", "lightgray"];
 
 // ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
-
+/*
 var Scales = {
     // scales
     lydian: "C D E F# G A B",
@@ -32,6 +32,7 @@ var Scales = {
     min: "C Eb G",
     _: function(scale) { return Scales[scale].split(" "); },
 };
+*/
 
 /* Decided what method to draw notes on the fretboard */
 function whatIs(sequence) {
@@ -79,7 +80,7 @@ function noteName(absPitch) {
     return note + octave.toString();
 }
 
-
+/*
 function asNotes(scale) {
     let [root, type] = scale.split(" ");
     var scaleInC = Scales._(type);
@@ -89,6 +90,7 @@ function asNotes(scale) {
     });
     return scaleTransposed.join(" ");
 }
+*/
 
 var verbatim = function(d) { return d; };
 
@@ -159,7 +161,6 @@ var Fretboard = function(config) {
         tuning: config.tuning || ModTunings.Guitar.standard.tuning, //Tunings.guitar6.standard,
         fretWidth: 50,
         fretHeight: 20,
-        mode: "chord" || "scale"
     };
 
     var fretFitsIn = function(fret) {
@@ -331,21 +332,16 @@ var Fretboard = function(config) {
                 .attr("cx", (absPitch - basePitch + 0.75) * instance.fretWidth)
                 .attr("cy", (string - 1) * instance.fretHeight + 1 + YMARGIN())
                 .attr("r", 9).style("stroke", color).style("fill", "white")
-                .on("click", function(d) {
-                    let fill = this.style.fill;
-                    this.setAttribute("stroke-width", 5 - parseInt(this.getAttribute("stroke-width")));
-                    this.style.fill = fill == "white"? "lightgray" : "white";
-                })
-                    .append("title").text(note)
+                .append("title").text(note)
                 ;
-                var noteText = fretNoteGroup.append("text")
-                                       .attr("text-anchor", "middle")
-                                       .attr("class", "note-text")
-                                       .attr('alignment-baseline', 'middle')
-                                       .attr("x", (absPitch - basePitch + 0.75) * instance.fretWidth)//padding of 4px
-                                       .attr("y", (string -1) * instance.fretHeight + 1 + YMARGIN())
-                                       .text(note)
-                                       ;
+            var noteText = fretNoteGroup.append("text")
+                                        .attr("text-anchor", "middle")
+                                        .attr("class", "note-text")
+                                        .attr('alignment-baseline', 'middle')
+                                        .attr("x", (absPitch - basePitch + 0.75) * instance.fretWidth)//padding of 4px
+                                        .attr("y", (string -1) * instance.fretHeight + 1 + YMARGIN())
+                                        .text(note)
+                                        ;
         }
         return instance;
     };
@@ -375,20 +371,21 @@ var Fretboard = function(config) {
 
 
     instance.scale = function(scaleName) {
+      console.log("scaleName: " + scaleName);
+      var nts = Tonal.Scale.notes(scaleName);
+      var sname = nts.join(' ');
         instance.clear();
-        instance.addNotes(asNotes(scaleName));
+        instance.addNotes(sname);
 
         return instance;
     };
 
     instance.chord = function(chordName) {
-// combine chord to single strings
-        var cname = Tonal.Chord.notes(chordName.replace(/\s+/g, '')).split(",");
-
+    // combine chord to single strings
+        var nts = Tonal.Chord.notes(chordName.replace(/\s+/g, ''));
+        var cname = nts.join(' ');
         instance.clear();
-        console.log('chord: ' + cname);
-        //instance.addNotes(asNotes(chordName));
-        instance.addNotes(Tonal.Chord.notes(cname));
+        instance.addNotes(cname);
 
         return instance;
     };
@@ -409,11 +406,9 @@ var Fretboard = function(config) {
 
     instance.draw = function(something) {
         let sections = something.split(";");
-        let mode = instance.mode;
         sections.forEach(function(section) {
             section = section.trim();
             let what = whatIs(section);
-            console.log('what: ' +  what);
             instance[what](section);
         });
     };
