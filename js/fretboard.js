@@ -382,8 +382,13 @@ var Fretboard = function(config) {
     };
 
     instance.chord = function(chordName) {
+// combine chord to single strings
+        var cname = Tonal.Chord.notes(chordName.replace(/\s+/g, '')).split(",");
+
         instance.clear();
-        instance.addNotes(asNotes(chordName));
+        console.log('chord: ' + cname);
+        //instance.addNotes(asNotes(chordName));
+        instance.addNotes(Tonal.Chord.notes(cname));
 
         return instance;
     };
