@@ -1,40 +1,13 @@
-// Music
-/*
-var allNotes = [
-    "c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"
-]; */
+
 /* This file requires d3.min.js & tonal.min.js to be loaded */
 
 var allNotes = Tonal.Scale.notes("C chromatic"); // Load all 12 notes of Chromatic Scale
-
-/*
-var allNotesEnh = [
-    "c", "db", "d", "eb", "fb", "f", "gb", "g", "ab", "a", "bb", "cb"
-];
-*/
+// ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
 
 var colors = ["red", "green", "blue", "black", "purple", "gray", "orange", "lightgray"];
 
-// ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
-/*
-var Scales = {
-    // scales
-    lydian: "C D E F# G A B",
-    major: "C D E F G A B",
-    mixolydian: "C D E F G A Bb",
-    dorian: "C D Eb F G A Bb",
-    aeolian: "C D Eb F G Ab Bb",
-    phrygian: "C Db Eb F G Ab Bb",
-    locrian: "C Db Eb F F# Ab Bb",
-    // chords
-    maj: "C E G",
-    aug: "C E Ab",
-    min: "C Eb G",
-    _: function(scale) { return Scales[scale].split(" "); },
-};
-*/
 
-/* Decided what method to draw notes on the fretboard */
+/* Decide what method to use to draw notes on the fretboard */
 function whatIs(sequence) {
     let sections = sequence.split(" ");
     if (sections.length === 2 && Tonal.Scale.exists(sections[1]) ) {
@@ -52,19 +25,13 @@ function whatIs(sequence) {
     }
 }
 
-//disable enharmonic note names
+  /* determines offset of current scale from C */
 function asOffset(note) {
-  /*  note = note.toLowerCase(); */
     var offset = allNotes.indexOf(note);
-  /*
-    if(offset === -1) {
-        offset = allNotesEnh.indexOf(note);
-    }
-  */
     return offset;
 }
 
-
+  /* determines the actual note value */
 function absNote(note) {
     var octave = note[note.length - 1];
     var pitch = asOffset(note.slice(0, -1));
@@ -73,44 +40,17 @@ function absNote(note) {
     }
 }
 
-
+  /* returns the note name in note octave format */
 function noteName(absPitch) {
     let octave = Math.floor(absPitch / 12);
     let note = allNotes[absPitch % 12];
     return note + octave.toString();
 }
 
-/*
-function asNotes(scale) {
-    let [root, type] = scale.split(" ");
-    var scaleInC = Scales._(type);
-    var offset = asOffset(root);
-    var scaleTransposed = scaleInC.map(function(note) {
-        return allNotes[(asOffset(note) + offset) % 12];
-    });
-    return scaleTransposed.join(" ");
-}
-*/
-
 var verbatim = function(d) { return d; };
 
 
 // Fretboard
-/*
-var Tunings = {
-
-    guitar6: {
-        standard: ["E2", "A2", "D3", "G3", "B3", "E4"],
-        E_4ths: ["E2", "A2", "D3", "G3", "C4", "F4"],
-        Drop_D: ["D2", "A2", "D3", "G3", "B3", "E4"],
-        G_open: ["D2", "G2", "D3", "G3", "B4", "D4"]
-    },
-    guitar7: {
-        standard: ["B2", "E2", "A2", "D3", "G3", "B3", "E4"],
-        E_4ths: ["B2", "E2", "A2", "D3", "G3", "C3", "F4"]
-    }
-};
-*/
 
 /* Tuning Structure for All Instruments */
 var ModTunings = {
@@ -463,23 +403,4 @@ Fretboard.drawAll = function(selector) {
     });
 };
 
-
-function Guitar(strings, frets) {
-    strings = strings || 6;
-    frets = frets || 12;
-    return Fretboard({
-        strings: strings,
-        frets: frets,
-        tuning: Tunings["guitar" + strings].standard
-    });
-}
-
-function Bass(strings, frets) {
-    strings = strings || 4;
-    frets = frets || 12;
-    return Fretboard({
-        strings: strings,
-        frets: frets,
-        tuning: Tunings["bass" + strings].standard
-    });
-}
+/* Based on code from https://github.com/txels/fretboard  */
