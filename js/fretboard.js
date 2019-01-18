@@ -99,6 +99,7 @@ var Fretboard = function(config) {
         startFret: config.startFret || 0,
         strings: config.strings || 6,
         tuning: config.tuning || ModTunings.Guitar.standard.tuning,
+        instrument: config.instrument || ModTunings.Guitar.standard,
         fretWidth: 50,
         fretHeight: 20,
     };
@@ -165,18 +166,20 @@ var Fretboard = function(config) {
 
     var drawStrings = function() {
 
+      var thickness = instance.instrument.thick;
+      var mytry = thickness.slice().reverse();
 
         for(var i=0; i<instance.strings; i++) {
-
             instance.svgContainer
                 .append("line")
                 .attr("x1", XMARGIN())
                 .attr("y1", i * instance.fretHeight + 1 + YMARGIN())
                 .attr("x2", XMARGIN() + fretboardWidth())
                 .attr("y2", i * instance.fretHeight + 1 + YMARGIN())
-                .attr("stroke", "black")
-                .attr("stroke-width", 1)
+                .attr("stroke", 'black')
+                .attr("stroke-width", mytry[i])
                 ;
+                console.log(mytry[i] + ' ' + thickness[i]);
         }
         var placeTuning = function(d, i) {
             return (instance.strings - i) * instance.fretHeight - 5 + "px";
