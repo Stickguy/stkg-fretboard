@@ -37,11 +37,24 @@ console.log("myout: "+myout); */
 /* Test tuning JSON structure */
 /* console.table(ModTunings.Guitar.standard.tuning); */
 
-/* Test Fretboard init */
+/* Default Fretboard */
 var fretboard = Fretboard();
-//works
+
+/* Fretboard Standard Bass */
+//var fretboard = Fretboard({instrument: ModTunings.Bass.standard});
+
+/* Fretboard Guitar_Drop_D */
+//var fretboard = Fretboard({instrument: ModTunings.Guitar.Guitar_Drop_D});
+
+/* Fretboard draw These notes */
 //fretboard.draw("C E G");
-  fretboard.draw("D M");
+
+/* Fretboard draw D Major Scale */
+//fretboard.draw("D major");
+
+/* Fretboard draw D Major Chord */
+fretboard.draw("D M");
+
 //
 //console.table(fretboard.settings);
 

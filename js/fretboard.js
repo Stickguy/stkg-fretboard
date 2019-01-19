@@ -61,7 +61,7 @@ var ModTunings = {
   "dots": [ "3","5","7","9","12d", "15", "17", "19", "21", "24d" ]
     },
 
-  "Guitar Drop D": {
+  "Guitar_Drop_D": {
   "tuning": ["D2", "A2", "D3", "G3", "B3", "E4"],
   "thick": [ 3, 3, 2, 1, 1, 1 ],
   "dots": [ "3","5","7","9","12d", "15", "17", "19", "21", "24d" ]
@@ -85,6 +85,12 @@ var Fretboard = function(config) {
     var where = config.where || "body";
 
     var id = "fretboard-" + Math.floor(Math.random() * 1000000);
+
+// Setup instance to receive default settings
+if(config.instrument) {
+  config.tuning = config.instrument.tuning;
+  config.strings = config.instrument.tuning.length;
+}
 
     var instance = {
         frets: config.frets || 24,
