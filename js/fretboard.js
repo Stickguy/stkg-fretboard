@@ -10,6 +10,7 @@ var colors = ["red", "green", "blue", "black", "purple", "gray", "orange", "ligh
 /* Decide what method to use to draw notes on the fretboard */
 function whatIs(sequence) {
     let sections = sequence.split(" ");
+    //console.table(sections);
     if (sections.length === 2 && Tonal.Scale.exists(sections[1]) ) {
       /* (sections.length === 2 && typeof Scales[sections[1]] == "string") */
         return "scale";
@@ -20,7 +21,11 @@ function whatIs(sequence) {
     }
     if (sections[0].indexOf(":") > 0) {
         return "placeNotes";
-    } else {
+    }
+    if (sections[0].match(/\d+$/)) {
+        return "specificNotes";
+    }
+     else {
         return "addNotes";
     }
 }
@@ -317,9 +322,15 @@ var tmpddots = ndots.slice();
         for (var i=0; i<allNotes.length; i++) {
             var showColor = color || colors[i];
             var note = allNotes[i];
+          //  console.log(note);
+            if(note.match(/\d+$/)){
+              var noteinf = note.split(/([0-9]+)/)
+              instance.addNote(noteinf[0] + noteinf[1], showColor);
+            } else {
             for (var octave=1; octave<7; octave++) {
                 instance.addNote(note + octave, showColor);
             }
+          }
         }
 
         return instance;
@@ -355,6 +366,18 @@ var tmpddots = ndots.slice();
             instance.addNoteOnString(note, string);  // , i==0? "red" : "black");
         });
 
+        return instance;
+    };
+
+    instance.specificNotes = function(noteName) {
+    //console.log('noteName: ' + noteName);
+    instance.addNotes(noteName);
+/*
+      var nts = Tonal.Scale.notes(scaleName);
+      var sname = nts.join(' ');
+        instance.clear();
+        instance.addNotes(sname);
+*/
         return instance;
     };
 
