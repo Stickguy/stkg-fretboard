@@ -363,7 +363,7 @@ var tmpddots = ndots.slice();
         pairs.forEach(function(pair, i) {
             let [string, note] = pair.split(":");
             string = parseInt(string);
-            instance.addNoteOnString(note, string);  // , i==0? "red" : "black");
+            instance.addNoteOnString(note, string, colors[i]);  // , i==0? "red" : "black");
         });
 
         return instance;
