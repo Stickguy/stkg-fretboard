@@ -58,18 +58,13 @@ var ModTunings = {
   "standard": {
   "tuning": ["E2", "A2", "D3", "G3", "B3", "E4"],
   "thick": [ 3, 3, 2, 1, 1, 1 ],
-  "inlay": {
-  "type": "dot",
-  "frets": [ "3","5","7","9","12d", "15", "17", "19", "21", "24d" ]
-           }
+  "dots": [ "3","5","7","9","12d", "15", "17", "19", "21", "24d" ]
     },
+
   "Guitar Drop D": {
   "tuning": ["D2", "A2", "D3", "G3", "B3", "E4"],
   "thick": [ 3, 3, 2, 1, 1, 1 ],
-  "inlay": {
-  "type": "dot",
-  "frets": [ "3","5","7","9","12d", "15", "17", "19", "21", "24d" ]
-           }
+  "dots": [ "3","5","7","9","12d", "15", "17", "19", "21", "24d" ]
     }
 
   },
@@ -77,10 +72,7 @@ var ModTunings = {
   "standard": {
   "tuning": [ "E1", "A1", "D2", "G2" ],
    "thick": [ 4, 3, 3, 2 ],
-   "inlay": {
-   "type": "dot",
-   "frets": [ "3","5","7","9","12d", "15", "17", "19", "21", "24d" ]
-           }
+   "dots": [ "3","5","7","9","12d", "15", "17", "19", "21", "24d" ]
     }
 
   }
@@ -108,14 +100,24 @@ var Fretboard = function(config) {
         return (fret > instance.startFret) && (fret <= instance.frets);
     };
 
-    var fretsWithDots = function () {
-        var allDots = [3, 5, 7, 9, 15, 17, 19, 21];
-        return allDots.filter(fretFitsIn);
+    var fretsWithDots = function (thedots) {
+        var singledots = thedots;
+      for (var i=singledots.length-1; i>=0; i--) {
+          if (singledots[i].match(/d/)) {
+              singledots.splice(i, 1);
+          }
+      }
+        return singledots.filter(fretFitsIn);
     };
 
-    var fretsWithDoubleDots = function () {
-        var allDots = [12, 24];
-        return allDots.filter(fretFitsIn);
+    var fretsWithDoubleDots = function (ddots) {
+        var doubledots = [];
+      for (var i=ddots.length-1; i>=0; i--) {
+          if (ddots[i].match(/d/)) {
+            doubledots.push(ddots[i].slice(0, -1));
+          }
+      }
+        return doubledots.filter(fretFitsIn);
     };
 
     var fretboardHeight = function () {
@@ -179,7 +181,7 @@ var Fretboard = function(config) {
                 .attr("stroke", 'black')
                 .attr("stroke-width", mytry[i])
                 ;
-                console.log(mytry[i] + ' ' + thickness[i]);
+
         }
         var placeTuning = function(d, i) {
             return (instance.strings - i) * instance.fretHeight - 5 + "px";
@@ -204,10 +206,12 @@ var Fretboard = function(config) {
 
 
     var drawDots = function() {
-
+var ndots = instance.instrument.dots;
+var tmpdots = ndots.slice();
+var tmpddots = ndots.slice();
         var p = instance.svgContainer
             .selectAll("circle")
-            .data(fretsWithDots());
+            .data(fretsWithDots(tmpdots));
 
         function dotX(d) {
             return (d - instance.startFret - 1) * instance.fretWidth + instance.fretWidth/2 + XMARGIN();
@@ -228,24 +232,24 @@ var Fretboard = function(config) {
             .append("circle")
             .attr("cx", dotX)
             .attr("cy", dotY(2))
-            .attr("r", 4).style("fill", "#ddd");
+            .attr("r", 4).style("fill", "black"); //#ddd
 
         var p = instance.svgContainer
             .selectAll(".octave")
-            .data(fretsWithDoubleDots());
+            .data(fretsWithDoubleDots(tmpddots));
 
         p.enter()
             .append("circle")
             .attr("class", "octave")
             .attr("cx", dotX)
             .attr("cy", dotY(3))
-            .attr("r", 4).style("fill", "#ddd");
+            .attr("r", 4).style("fill", "black"); //#ddd
         p.enter()
             .append("circle")
             .attr("class", "octave")
             .attr("cx", dotX)
             .attr("cy", dotY(1))
-            .attr("r", 4).style("fill", "#ddd");
+            .attr("r", 4).style("fill", "black"); //#ddd
     };
 
 
@@ -317,7 +321,6 @@ var Fretboard = function(config) {
 
 
     instance.scale = function(scaleName) {
-      //console.log("scaleName: " + scaleName);
       var nts = Tonal.Scale.notes(scaleName);
       var sname = nts.join(' ');
         instance.clear();
