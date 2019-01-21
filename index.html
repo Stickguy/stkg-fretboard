@@ -10,66 +10,199 @@
 
   <!--  Import Tonal Library  -->
   <script src="js/tonal.min.js"></script>
+  <!--  Import jQuery  -->
+  <script src="js/jquery.min.js"></script>
   <!--  Import d3  -->
   <script src="js/d3.min.js"></script>
-  <!--  Import fretboard  -->
-  <script src="js/fretboard.js"></script>
+  <!--  Import Fretboard CSS  -->
   <link rel="stylesheet" type="text/css" href="css/fretboard.css"/>
+
+  <link rel="stylesheet" type="text/css" href="css/style.css"/>
+
 </head>
 
 <body>
+
+<div id="modepanel">
+  <label for="selectMode">Mode:</label>
+  <input type="radio" name="selectMode" value="chord" checked="checked" /> Chord <input type="radio" name="selectMode" value="scale" /> Scale
+<br />
+<label for="selectRoot">Root:</label>
+<select id="selectRoot">
+    <option>Choose a Root Note</option>
+</select>
+
+<label for="selectOctave">Octave:</label>
+<select id="selectOctave" disabled>
+    <option selected>None</option>
+    <option>-1</option>
+    <option>0</option>
+    <option>1</option>
+    <option>2</option>
+    <option>3</option>
+    <option>4</option>
+    <option>5</option>
+    <option>6</option>
+    <option>7</option>
+    <option>8</option>
+    <option>9</option>
+</select>
+
+<div id="chordholder" class="inline">
+<label for="selectChord">Chord:</label>
+<select id="selectChord" disabled>
+    <option>Choose a Chord Type</option>
+</select>
+</div>
+<div id="scaleholder" class="inline hidden">
+<label for="selectScale">Scale:</label>
+<select id="selectScale" disabled>
+    <option>Choose a Scale Type</option>
+</select>
+</div>
+
+<label for="selectTuning">Tuning:</label>
+<select id="selectTuning">
+
+</select>
+
+</div>
+
 <div id="fretboard-wrap"></div>
-
+<!--  Import fretboard  -->
+<script src="js/fretboard.js"></script>
 <script>
+/* Setup some Defualts for the interface */
+var roots = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
-/* Tonal Test */
-/* var myout = Tonal.Chord.names();
-console.log("myout: "+myout); */
+/* Setup Root Note Dropdown */
+$.each(roots, function(i, p) {
+    $('#selectRoot').append($('<option></option>').val(p).html(p));
+});
 
-/* d3 Test */
-/* d3.selectAll("p").style("color", function() {
-  return "hsl(" + Math.random() * 360 + ",100%,50%)";
-}); */
+/* Setup Chord Dropdown */
+var chords = Tonal.Chord.names();
+$.each(chords, function(i, p) {
+    $('#selectChord').append($('<option></option>').val(p).html(p));
+});
 
-/* Test value from fretboard */
-/* d3.selectAll("p").text(allNotes); */
+/* Setup Scale Dropdown */
+var scales = Tonal.Scale.names();
+$.each(scales, function(i, p) {
+    $('#selectScale').append($('<option></option>').val(p).html(p));
+});
 
-/* Test tuning JSON structure */
-/* console.table(ModTunings.Guitar.standard.tuning); */
+// Setup Tuning Dropdown - Convert Tuning Names to User Friendly Format
+var tunings = ModTunings;
+var tuningselect = $('#selectTuning');
 
-/* Default Fretboard */
+$.each(tunings, function(key, value){
+        var group = $('<optgroup label="' + key + '" />');
+        $.each(value, function(i,p){
+          var cleanName = key + ': ' + i;
+          cleanName = cleanName.replace(/_/g, ' ');
+          if(key === 'Guitar'&& i === 'Standard' ){
+            $('<option selected />').val(i).html(cleanName).appendTo(group);
+          } else {
+            $('<option />').val(i).html(cleanName).appendTo(group);
+          }
+        });
+        group.appendTo(tuningselect);
+    });
+
+/* Create Fretboard */
 var fretboard = Fretboard();
 
-/* Fretboard Standard Bass */
-//var fretboard = Fretboard({instrument: ModTunings.Bass.standard});
+// Get Selected Chord/Scale info from API
+function getMusicData(){
+  var currentMode = $("input[type=radio][name=selectMode]:checked").val();
+  var iroot = $("#selectRoot option:selected").val();
+  var ichord = $("#selectChord option:selected").val();
+  var ioctave = $("#selectOctave option:selected").val();
+  var iscale = $("#selectScale option:selected").val();
+  var findMe = "Choose";
+  var myout = [];
 
-/* Fretboard Guitar_Drop_D */
-//var fretboard = Fretboard({instrument: ModTunings.Guitar.Guitar_Drop_D});
+// Adjust note if Octave is given
+if(ioctave!='None'){
+  iroot = iroot + ioctave;
+}
 
-/* Fretboard draw These notes */
-//fretboard.draw("C E G");
+if(currentMode === 'chord' && ichord.substring(0, findMe.length) != findMe){
+  myout = Tonal.Chord.notes(iroot, ichord);
+} else if (currentMode === 'scale' && iscale.substring(0, findMe.length) != findMe){
+  myout = Tonal.Scale.notes(iroot, iscale);
+} else if (iroot.substring(0, findMe.length) === findMe){
+  myout = [];
+} else {
+  myout = iroot.split(' ');
+}
 
-/* Fretboard draw D Major Scale */
-//fretboard.draw("D major");
+var finseq = myout.join(' ');
+fretboard.clearNotes();
+fretboard.draw(finseq);
+}
 
-/* Fretboard draw D Major Chord */
-//fretboard.draw("D M");
+// Retune Fretboard
+function retuneFretboard(){
+console.log('retuning');
+var itune = $("#selectTuning option:selected");
+var tuneval = itune.val();
+group = itune.parent().attr('label');
 
-/* Fretboard draw Specific Notes - works for sequences */
-//fretboard.draw("C3 E3 G3");
-//fretboard.draw("C3");
+fretboard.delete();
+fretboard = Fretboard({instrument: ModTunings[group][tuneval] });
+getMusicData();
+}
 
-/* Fretboard draw Specific Note on specific strings */
-fretboard.draw("5:C3 4:E3 3:Bb3 2:D4 1:G4");
+/*
+*      Interface Actions
+*/
 
+// Switch between Chord & Scale Mode. Toggle visibility on the two dropdowns
+$('input[type=radio][name=selectMode]').change(function() {
+  //var mode = $("#selectMode option:selected").val();
+  if (this.value == 'chord') {
+      $( "#chordholder" ).removeClass( "hidden" );
+      $( "#scaleholder" ).addClass( "hidden" ).prop('selectedIndex',0);
+      }
+      else if (this.value == 'scale') {
+      $( "#scaleholder" ).removeClass( "hidden" );
+      $( "#chordholder" ).addClass( "hidden" ).prop('selectedIndex',0);
+      }
+      getMusicData();
+});
 
-//
-//console.table(fretboard.settings);
+// Enable Chord & Scale Dropdowns once a root note has been selected
+$("#selectRoot").change(function() {
+  $("#selectOctave").prop('disabled', false).prop('selectedIndex',0);
+  $("#selectChord").prop('disabled', false).prop('selectedIndex',0);
+  $("#selectScale").prop('disabled', false).prop('selectedIndex',0);
+  getMusicData();
+});
+
+// ReDraw when new octave is selected
+$("#selectOctave").change(function() {
+  getMusicData();
+});
+
+// Disable Chord or Scale Dropdown when one is selected
+$("#selectChord").change(function() {
+  getMusicData();
+});
+
+$("#selectScale").change(function() {
+  getMusicData();
+});
+
+$("#selectTuning").change(function() {
+  retuneFretboard();
+});
 
 </script>
 
 <p>
-  PICKUP: Need to be able to draw specific Notes D3  E2 etc
+  PICKUP: Add Range Dropdown. Should set the octave range of notes displayed
 </p>
 
 </body>

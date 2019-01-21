@@ -2,7 +2,7 @@
 /* This file requires d3.min.js & tonal.min.js to be loaded */
 
 var allNotes = Tonal.Scale.notes("C chromatic"); // Load all 12 notes of Chromatic Scale
-// ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+// ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"] <- Tonal Output
 
 var colors = ["red", "green", "blue", "black", "purple", "gray", "orange", "lightgray"];
 
@@ -60,7 +60,7 @@ var verbatim = function(d) { return d; };
 /* Tuning Structure for All Instruments */
 var ModTunings = {
   "Guitar":{
-  "standard": {
+  "Standard": {
   "tuning": ["E2", "A2", "D3", "G3", "B3", "E4"],
   "thick": [ 3, 3, 2, 1, 1, 1 ],
   "dots": [ "3","5","7","9","12d", "15", "17", "19", "21", "24d" ]
@@ -74,7 +74,7 @@ var ModTunings = {
 
   },
   "Bass":{
-  "standard": {
+  "Standard": {
   "tuning": [ "E1", "A1", "D2", "G2" ],
    "thick": [ 4, 3, 3, 2 ],
    "dots": [ "3","5","7","9","12d", "15", "17", "19", "21", "24d" ]
@@ -84,10 +84,11 @@ var ModTunings = {
 
 
 };
+var fretboardHTML = document.getElementById("fretboard-wrap");
 
 var Fretboard = function(config) {
     config = config || {};
-    var where = config.where || "body";
+    var where = config.where || fretboardHTML;
 
     var id = "fretboard-" + Math.floor(Math.random() * 1000000);
 
@@ -101,8 +102,8 @@ if(config.instrument) {
         frets: config.frets || 24,
         startFret: config.startFret || 0,
         strings: config.strings || 6,
-        tuning: config.tuning || ModTunings.Guitar.standard.tuning,
-        instrument: config.instrument || ModTunings.Guitar.standard,
+        tuning: config.tuning || ModTunings.Guitar.Standard.tuning,
+        instrument: config.instrument || ModTunings.Guitar.Standard,
         fretWidth: 50,
         fretHeight: 20,
     };
@@ -394,7 +395,7 @@ var tmpddots = ndots.slice();
 
     instance.clearNotes = function() {
         instance.svgContainer
-            .selectAll(".note")
+            .selectAll("#fretNoteGroup")
             .remove();
 
         return instance;

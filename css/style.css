@@ -1,0 +1,20 @@
+
+body {
+  font-family: Sans-Serif;
+  margin-left: 1%;
+  margin-right: 1%;
+}
+
+
+label, select {
+  margin-right:5px;
+}
+
+.inline {
+  display: inline-block;
+}
+
+
+.hidden {
+  display:none;
+}
