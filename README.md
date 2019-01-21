@@ -20,6 +20,6 @@ Enter a root note and scale or chord name separated by a space.
 ToDo:
 
 
+    Add Choice to double root note (if true add Root note up one octave to end of myout (near line 141) )
     Add Chordlist and Scalelist to Readme
     Add enharmonic mode?
-    
