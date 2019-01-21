@@ -17,7 +17,7 @@ Enter a root note and scale or chord name separated by a space.
   var fretboard = Fretboard();
   fretboard.draw("C major");
 
-ToDo:
+## ToDo:
 
 
     Add Choice to double root note (if true add Root note up one octave to end of myout (near line 141) )
