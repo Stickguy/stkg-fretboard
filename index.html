@@ -48,6 +48,20 @@
     <option>9</option>
 </select>
 
+<label for="selectRange">Range:</label>
+<select id="selectRange" disabled>
+    <option selected>None</option>
+    <option>1</option>
+    <option>2</option>
+    <option>3</option>
+    <option>4</option>
+    <option>5</option>
+    <option>6</option>
+    <option>7</option>
+    <option>8</option>
+    <option>9</option>
+</select>
+
 <div id="chordholder" class="inline">
 <label for="selectChord">Chord:</label>
 <select id="selectChord" disabled>
@@ -63,18 +77,24 @@
 
 <label for="selectTuning">Tuning:</label>
 <select id="selectTuning">
-
 </select>
+
+<input type="checkbox" name="doubleRoot" value="1" id="doubleRoot" checked><label for="doubleRoot"> Double Root Note</label>
 
 </div>
 
 <div id="fretboard-wrap"></div>
+
+<div id="listholder">
+  <p>Selected Notes: <span class="notelist"></span></p>
+</div>
 <!--  Import fretboard  -->
 <script src="js/fretboard.js"></script>
 <script>
 /* Setup some Defualts for the interface */
 var roots = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
+var isActive = false;
 /* Setup Root Note Dropdown */
 $.each(roots, function(i, p) {
     $('#selectRoot').append($('<option></option>').val(p).html(p));
@@ -113,25 +133,62 @@ $.each(tunings, function(key, value){
 /* Create Fretboard */
 var fretboard = Fretboard();
 
+/* Range Extensions for Tonal Library */
+
+// convert notes to midi if needed
+function asNum(n) {
+  return typeof n === "number" ? n : Tonal.midi(n);
+}
+
+function numeric(arr) {
+  return arr.map(asNum).reduce(function(r, n, i) {
+    if (i === 1) return Tonal.Array.range(r, n);
+    const last = r[r.length - 1];
+    return r.concat(Tonal.Array.range(last, n).slice(1));
+  });
+}
+
+function chromatic(arr, sharps) {
+  return numeric(arr).map(n => Tonal.Note.fromMidi(n, sharps));
+}
+
+function scale(set, range) {
+  return arguments.length === 1
+    ? r => scale(set, r)
+    : Tonal.PcSet.filter(set, chromatic(range));
+}
+
 // Get Selected Chord/Scale info from API
 function getMusicData(){
+
+if(!isActive){
+  $("#selectOctave").prop('disabled', false).prop('selectedIndex',0);
+  $("#selectChord").prop('disabled', false).prop('selectedIndex',0);
+  $("#selectScale").prop('disabled', false).prop('selectedIndex',0);
+  isActive = true;
+}
+
   var currentMode = $("input[type=radio][name=selectMode]:checked").val();
   var iroot = $("#selectRoot option:selected").val();
   var ichord = $("#selectChord option:selected").val();
   var ioctave = $("#selectOctave option:selected").val();
   var iscale = $("#selectScale option:selected").val();
+  var isdouble = $('#doubleRoot').prop('checked');
   var findMe = "Choose";
   var myout = [];
 
 // Adjust note if Octave is given
 if(ioctave!='None'){
+  var doubledRoot = iroot + (parseInt(ioctave) + parseInt(1));
   iroot = iroot + ioctave;
 }
 
 if(currentMode === 'chord' && ichord.substring(0, findMe.length) != findMe){
   myout = Tonal.Chord.notes(iroot, ichord);
+  if(isdouble){ myout.push(doubledRoot);}
 } else if (currentMode === 'scale' && iscale.substring(0, findMe.length) != findMe){
   myout = Tonal.Scale.notes(iroot, iscale);
+  if(isdouble){ myout.push(doubledRoot);}
 } else if (iroot.substring(0, findMe.length) === findMe){
   myout = [];
 } else {
@@ -139,13 +196,25 @@ if(currentMode === 'chord' && ichord.substring(0, findMe.length) != findMe){
 }
 
 var finseq = myout.join(' ');
+/*
+if(ioctave!='None'){
+var ranget = scale(finseq, [iroot, doubledRoot]);
+console.log(ranget);
+}
+*/
+var hardcode = scale(myout, [iroot, "C3"]);
+console.log(hardcode);
+//console.log(Tonal.PcSet.filter(["C", "D", "E", "F", "G", "A", "B"], chromatic(["C1", "C3"])));
+
+// Display Selected Notes under the Fretboard
+$('.notelist').text(finseq);
+
 fretboard.clearNotes();
 fretboard.draw(finseq);
 }
 
 // Retune Fretboard
 function retuneFretboard(){
-console.log('retuning');
 var itune = $("#selectTuning option:selected");
 var tuneval = itune.val();
 group = itune.parent().attr('label');
@@ -173,11 +242,8 @@ $('input[type=radio][name=selectMode]').change(function() {
       getMusicData();
 });
 
-// Enable Chord & Scale Dropdowns once a root note has been selected
+// ReDraw when new octave is selected
 $("#selectRoot").change(function() {
-  $("#selectOctave").prop('disabled', false).prop('selectedIndex',0);
-  $("#selectChord").prop('disabled', false).prop('selectedIndex',0);
-  $("#selectScale").prop('disabled', false).prop('selectedIndex',0);
   getMusicData();
 });
 
@@ -202,7 +268,9 @@ $("#selectTuning").change(function() {
 </script>
 
 <p>
-  PICKUP: Add Range Dropdown. Should set the octave range of notes displayed
+  PICKUP: Add Range Dropdown. Should set the octave range of notes displayed<br />
+          pickup on 'hardcode' at line 205.<br />
+          need to feed root if it's numbered and add end range 
 </p>
 
 </body>

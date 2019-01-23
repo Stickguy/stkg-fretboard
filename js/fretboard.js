@@ -1,10 +1,12 @@
 
 /* This file requires d3.min.js & tonal.min.js to be loaded */
 
-var allNotes = Tonal.Scale.notes("C chromatic"); // Load all 12 notes of Chromatic Scale
-// ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"] <- Tonal Output
+//var allNotes = Tonal.Scale.notes("C chromatic"); // Load all 12 notes of Chromatic Scale with Tonal
+// ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"] <- Tonal Output (mixed enharmonic causes issues)
 
-var colors = ["red", "green", "blue", "black", "purple", "gray", "orange", "lightgray"];
+var allNotes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]; // Hard Coded
+
+var colors = ["red", "green", "blue", "black", "purple", "gray", "orange", "lightgray", "red"];
 
 
 /* Decide what method to use to draw notes on the fretboard */
@@ -79,6 +81,19 @@ var ModTunings = {
    "thick": [ 4, 3, 3, 2 ],
    "dots": [ "3","5","7","9","12d", "15", "17", "19", "21", "24d" ]
     }
+
+  },
+  "Stick_10":{
+  "Standard_RH": {
+  "tuning": ["F#2", "B2", "E3", "A3", "D4"],
+   "thick": [ 3, 1, 1, 1, 1 ],
+   "dots": [ "3", "5", "7","9","12d","15","17" ]
+ },
+ "Baritone_Mel_RH": {
+ "tuning": ["C#2", "F#2", "B2", "E3", "A3"],
+  "thick": [ 3, 1, 1, 1, 1 ],
+  "dots": [ "3", "5", "7","9","12d","15","17" ]
+   }
 
   }
 
