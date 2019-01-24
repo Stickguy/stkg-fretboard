@@ -48,10 +48,9 @@
     <option>9</option>
 </select>
 
-<label for="selectRange">Range:</label>
-<select id="selectRange" disabled>
-    <option selected>None</option>
-    <option>1</option>
+<label for="selectRange" disabled>Range:</label>
+<select id="selectRange">
+    <option selected>1</option>
     <option>2</option>
     <option>3</option>
     <option>4</option>
@@ -95,6 +94,7 @@
 var roots = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
 var isActive = false;
+//var isRanged = false;
 /* Setup Root Note Dropdown */
 $.each(roots, function(i, p) {
     $('#selectRoot').append($('<option></option>').val(p).html(p));
@@ -155,7 +155,11 @@ function chromatic(arr, sharps) {
 function scale(set, range) {
   return arguments.length === 1
     ? r => scale(set, r)
-    : Tonal.PcSet.filter(set, chromatic(range));
+    : Tonal.PcSet.filter(set, chromatic(range, true));
+}
+
+function hasNumber(myString) {
+  return /\d/.test(myString);
 }
 
 // Get Selected Chord/Scale info from API
@@ -177,9 +181,15 @@ if(!isActive){
   var findMe = "Choose";
   var myout = [];
 
-// Adjust note if Octave is given
+// Adjust note according to Octave setting
+if(ioctave === 'None'){
+  $("#selectRange").prop('disabled', true).prop('selectedIndex',0);
+}
+
 if(ioctave!='None'){
-  var doubledRoot = iroot + (parseInt(ioctave) + parseInt(1));
+  $("#selectRange").prop('disabled', false)
+  var irange = $("#selectRange option:selected").val();
+  var doubledRoot = iroot + (parseInt(ioctave) + parseInt(irange));
   iroot = iroot + ioctave;
 }
 
@@ -195,16 +205,11 @@ if(currentMode === 'chord' && ichord.substring(0, findMe.length) != findMe){
   myout = iroot.split(' ');
 }
 
-var finseq = myout.join(' ');
-/*
-if(ioctave!='None'){
-var ranget = scale(finseq, [iroot, doubledRoot]);
-console.log(ranget);
+if(hasNumber(myout[0])){
+  myout = scale(myout, [iroot, doubledRoot]);
 }
-*/
-var hardcode = scale(myout, [iroot, "C3"]);
-console.log(hardcode);
-//console.log(Tonal.PcSet.filter(["C", "D", "E", "F", "G", "A", "B"], chromatic(["C1", "C3"])));
+
+var finseq = myout.join(' ');
 
 // Display Selected Notes under the Fretboard
 $('.notelist').text(finseq);
@@ -252,6 +257,11 @@ $("#selectOctave").change(function() {
   getMusicData();
 });
 
+// ReDraw when new range is selected
+$("#selectRange").change(function() {
+  getMusicData();
+});
+
 // Disable Chord or Scale Dropdown when one is selected
 $("#selectChord").change(function() {
   getMusicData();
@@ -268,9 +278,9 @@ $("#selectTuning").change(function() {
 </script>
 
 <p>
-  PICKUP: Add Range Dropdown. Should set the octave range of notes displayed<br />
-          pickup on 'hardcode' at line 205.<br />
-          need to feed root if it's numbered and add end range 
+  PICKUP: Testing<br />
+          possibly remove double note checkbox. it's probably confusing and unneeded<br />
+          start looking at adding audio play of selected notes 
 </p>
 
 </body>

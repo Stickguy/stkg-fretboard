@@ -26,4 +26,4 @@ Valid Scales: aeolian, altered, augmented, augmented heptatonic, balinese, bebop
 ## ToDo:
 
 
-    - Add Range selector 
+    - Add Audio Player for selected notes 
