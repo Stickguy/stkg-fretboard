@@ -231,6 +231,26 @@ if(config.instrument) {
             ;
     };
 
+var drawControlPanel = function() {
+  // number
+  d3.select("#" + id)
+      .append("div")
+      .attr("class", "cpanel")
+      .style("top", (fretboardHeight() + YMARGIN() + 5) + "px")
+      .style("left", 0 + "px")
+      ;
+  d3.select("#" + id)
+  .selectAll(".cpanel")
+  .append("a")
+  .attr("class", "playerButton play")
+  .text("Play")
+  .on("click", function(d) {
+console.log('Play Ball!');
+})
+  ;
+
+}
+
 
     var drawDots = function() {
 var ndots = instance.instrument.dots;
@@ -286,6 +306,7 @@ var tmpddots = ndots.slice();
         drawFrets();
         drawDots();
         drawStrings();
+        drawControlPanel();
         return instance;
     };
 

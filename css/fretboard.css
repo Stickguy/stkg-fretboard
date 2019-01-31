@@ -23,3 +23,7 @@
   font-family: Sans-Serif;
   user-select: none;
 }
+
+.playerButton {
+  cursor: pointer;
+}

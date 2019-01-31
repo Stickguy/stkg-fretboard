@@ -10,6 +10,8 @@
 
   <!--  Import Tonal Library  -->
   <script src="js/tonal.min.js"></script>
+  <!--  Import Tone.js Library  -->
+  <script src="js/Tone.js"></script>
   <!--  Import jQuery  -->
   <script src="js/jquery.min.js"></script>
   <!--  Import d3  -->
@@ -78,7 +80,9 @@
 <select id="selectTuning">
 </select>
 
-<input type="checkbox" name="doubleRoot" value="1" id="doubleRoot" checked><label for="doubleRoot"> Double Root Note</label>
+<div id="dblrootholder" class="inline hidden">
+<input type="checkbox" name="doubleRoot" value="1" id="doubleRoot"><label for="doubleRoot"> Double Root Note</label>
+</div>
 
 </div>
 
@@ -195,7 +199,7 @@ if(ioctave!='None'){
 
 if(currentMode === 'chord' && ichord.substring(0, findMe.length) != findMe){
   myout = Tonal.Chord.notes(iroot, ichord);
-  if(isdouble){ myout.push(doubledRoot);}
+  //if(isdouble){ myout.push(doubledRoot);}
 } else if (currentMode === 'scale' && iscale.substring(0, findMe.length) != findMe){
   myout = Tonal.Scale.notes(iroot, iscale);
   if(isdouble){ myout.push(doubledRoot);}
@@ -207,6 +211,9 @@ if(currentMode === 'chord' && ichord.substring(0, findMe.length) != findMe){
 
 if(hasNumber(myout[0])){
   myout = scale(myout, [iroot, doubledRoot]);
+  if(!isdouble){
+  myout.pop();
+}
 }
 
 var finseq = myout.join(' ');
@@ -238,10 +245,12 @@ $('input[type=radio][name=selectMode]').change(function() {
   //var mode = $("#selectMode option:selected").val();
   if (this.value == 'chord') {
       $( "#chordholder" ).removeClass( "hidden" );
+      $( "#dblrootholder" ).addClass( "hidden" ).attr('checked', false);
       $( "#scaleholder" ).addClass( "hidden" ).prop('selectedIndex',0);
       }
       else if (this.value == 'scale') {
       $( "#scaleholder" ).removeClass( "hidden" );
+      $( "#dblrootholder" ).removeClass( "hidden" );
       $( "#chordholder" ).addClass( "hidden" ).prop('selectedIndex',0);
       }
       getMusicData();
@@ -262,15 +271,22 @@ $("#selectRange").change(function() {
   getMusicData();
 });
 
-// Disable Chord or Scale Dropdown when one is selected
+// ReDraw when new Chord is selected
 $("#selectChord").change(function() {
   getMusicData();
 });
 
+// ReDraw when new Scale is selected
 $("#selectScale").change(function() {
   getMusicData();
 });
 
+// ReDraw when double root is selected
+$("#doubleRoot").change(function() {
+  getMusicData();
+});
+
+// ReDraw when new tuning is selected
 $("#selectTuning").change(function() {
   retuneFretboard();
 });
@@ -278,9 +294,8 @@ $("#selectTuning").change(function() {
 </script>
 
 <p>
-  PICKUP: Testing<br />
-          possibly remove double note checkbox. it's probably confusing and unneeded<br />
-          start looking at adding audio play of selected notes
+  PICKUP: Audio player:<br />
+  Add a play button to the fretboard component to play selected notes 
 </p>
 
 </body>

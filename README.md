@@ -6,9 +6,22 @@ A javascript fretboard component
 
 Tonal Music API: https://github.com/danigb/tonal
 
+
+  - Handles Music Theory, Chords, Scales
+
+
+Tone.js: https://github.com/Tonejs/Tone.js
+
+
+  - Handles Audio Playback
+
 d3js: https://d3js.org/
 
+
+  - Fretboard Drawing 
+
 jQuery: https://jquery.com/
+
 
 ## Usage:
 
@@ -26,4 +39,4 @@ Valid Scales: aeolian, altered, augmented, augmented heptatonic, balinese, bebop
 ## ToDo:
 
 
-    - Add Audio Player for selected notes 
+    - Add Audio Player for selected notes
