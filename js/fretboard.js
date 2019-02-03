@@ -8,6 +8,51 @@ var allNotes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
 var colors = ["red", "green", "blue", "black", "purple", "gray", "orange", "lightgray", "red"];
 
+var selectedNotes = [];
+
+var isPlaying = false;
+
+document.documentElement.addEventListener('mousedown', function () {
+  if (Tone.context.state !== 'running') Tone.context.resume();
+});
+
+//const synth = new Tone.Synth();
+const synth = new Tone.MonoSynth(
+  {
+    "oscillator": {
+        "type": "fmsquare5",
+		"modulationType" : "triangle",
+      	"modulationIndex" : 2,
+      	"harmonicity" : 0.501
+    },
+    "filter": {
+        "Q": 1,
+        "type": "lowpass",
+        "rolloff": -24
+    },
+    "envelope": {
+        "attack": 0.01,
+        "decay": 0.1,
+        "sustain": 0.4,
+        "release": 2
+    },
+    "filterEnvelope": {
+        "attack": 0.01,
+        "decay": 0.1,
+        "sustain": 0.8,
+        "release": 1.5,
+        "baseFrequency": 50,
+        "octaves": 4.4
+    }
+}
+);
+//synth.oscillator.type = 'sine';
+const gain = new Tone.Gain(0.3);
+gain.toMaster();
+synth.connect(gain);
+
+var pattern = '';
+//var index = 0;
 
 /* Decide what method to use to draw notes on the fretboard */
 function whatIs(sequence) {
@@ -55,10 +100,59 @@ function noteName(absPitch) {
 }
 
 var verbatim = function(d) { return d; };
+/*
+function repeat(time, theNotes){
+console.log(theNotes.length);
+  let note = theNotes[index % theNotes.length];
+  synth.triggerAttackRelease(note, '8n', time);
+  index++;
+}
 
+function playNotes(){
+  index = 0;
+ var myScale = selectedNotes;
+ console.log('selected notes: ' + myScale);
+
+if(isPlaying){
+  Tone.Transport.stop();
+  //Tone.Pattern.dispose;
+  myScale = [];
+  isPlaying = false;
+} else {
+  Tone.Transport.scheduleRepeat(time => {
+    repeat(time, myScale);
+  }, '8n');
+  isPlaying = true;
+  Tone.Transport.start();
+}
+
+}
+*/
+
+  // Works but has audio artifacts
+function playNotes(){
+  d3.select(".playerButton").classed("active", d3.select(".playerButton").classed("active") ? false : true)
+  var patternOption = document.getElementById('patternSelect');
+  var patternName = patternOption.options[patternOption.selectedIndex].value;
+  var myScale = selectedNotes;
+  var tempo = "120";
+  Tone.Transport.bpm.value = tempo;
+  pattern = new Tone.Pattern(function(time, note){
+    synth.triggerAttackRelease(note, "8n", time);
+}, myScale, patternName).start(0);
+
+if(isPlaying){
+  Tone.Transport.stop();
+  Tone.Pattern.dispose;
+  isPlaying = false;
+} else {
+  isPlaying = true;
+  Tone.Transport.start("+0.1");
+}
+
+}
 
 // Fretboard
-
 /* Tuning Structure for All Instruments */
 var ModTunings = {
   "Guitar":{
@@ -231,6 +325,11 @@ if(config.instrument) {
             ;
     };
 
+function onchange() {
+  var sel = document.getElementById('patternSelect');
+  console.log(sel.options[sel.selectedIndex].value)
+    };
+
 var drawControlPanel = function() {
   // number
   d3.select("#" + id)
@@ -239,16 +338,32 @@ var drawControlPanel = function() {
       .style("top", (fretboardHeight() + YMARGIN() + 5) + "px")
       .style("left", 0 + "px")
       ;
+
   d3.select("#" + id)
   .selectAll(".cpanel")
   .append("a")
   .attr("class", "playerButton play")
-  .text("Play")
-  .on("click", function(d) {
-console.log('Play Ball!');
-})
+  /*.text("Play")*/
+  .html('<span class="play">Play</span><span class="pause">Pause</span>')
+  .on("click", playNotes)
   ;
 
+var data = ["up", "down", "upDown", "downUp", "alternateUp", "alternateDown", "random", "randomWalk", "randomOnce"];
+
+  var dropDown = d3.select("#" + id)
+  .selectAll(".cpanel")
+  .append("select")
+  .attr("id", "patternSelect")
+  .attr("name", "pattern-list")
+  .on('change',onchange)
+  ;
+
+  var options = dropDown
+  .selectAll('option')
+	.data(data).enter()
+	.append('option')
+	.text(function (d) { return d; })
+  ;
 }
 
 
@@ -407,19 +522,13 @@ var tmpddots = ndots.slice();
     };
 
     instance.specificNotes = function(noteName) {
-    //console.log('noteName: ' + noteName);
     instance.addNotes(noteName);
-/*
-      var nts = Tonal.Scale.notes(scaleName);
-      var sname = nts.join(' ');
-        instance.clear();
-        instance.addNotes(sname);
-*/
         return instance;
     };
 
 
     instance.draw = function(something) {
+      selectedNotes = something.split(" "); // create array of notes for the audio player;
         let sections = something.split(";");
         sections.forEach(function(section) {
             section = section.trim();
