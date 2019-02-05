@@ -20,7 +20,7 @@ document.documentElement.addEventListener('mousedown', function () {
 //const synth = new Tone.Synth();
 
 /* create tonejs monosynth */
-
+/*
 const synth = new Tone.MonoSynth(
   {
     "oscillator": {
@@ -50,6 +50,7 @@ const synth = new Tone.MonoSynth(
     }
 }
 );
+*/
 
 /* create tonejs sampler */
 /*
@@ -145,9 +146,24 @@ const synth = new Tone.Sampler({
 		});
 */
 //synth.oscillator.type = 'sine';
+
+//init TinySynth without using default audiocontext
+var synth = new WebAudioTinySynth({internalcontext:0})
+
+/*
 const gain = new Tone.Gain(0.3);
 gain.toMaster();
 synth.connect(gain);
+*/
+//use ToneJS AudioContext and connect to Tone.Master
+//Tone.Master could be replaced with other components/effects
+synth.setAudioContext(Tone.context, Tone.Master)
+
+//set channel instrument program (0-127)
+synth.send([0xc0, 25]);
+
+var noteDuration = Tone.Time("8n");
+
 
 var pattern = '';
 //var index = 0;
@@ -197,20 +213,60 @@ function noteName(absPitch) {
     return note + octave.toString();
 }
 
+/* returns Midi Note Number */
+function toMidi(note) {
+  return Tonal.midi(note);
+}
+
 var verbatim = function(d) { return d; };
 
   // Works but has audio artifacts
 function playNotes(){
   d3.select(".playerButton").classed("active", d3.select(".playerButton").classed("active") ? false : true)
+
+/* Get the desired pattern for playback */
   var patternOption = document.getElementById('patternSelect');
   var patternName = patternOption.options[patternOption.selectedIndex].value;
+
+/* Get selected notes */
   var myScale = selectedNotes;
+  var midiScale = [];
+  myScale.forEach(function (note, index) {
+  	midiScale.push(toMidi(note));
+  });
+  console.table(midiScale);
+
   var tempo = "120";
   Tone.Transport.bpm.value = tempo;
   pattern = new Tone.Pattern(function(time, note){
-    synth.triggerAttackRelease(note, "8n", time);
-}, myScale, patternName).start(0);
+    //synth.triggerAttackRelease(note, "8n", time);
+    //note on
+    synth.send([0x90, note, 100], time);
+    //note off
+    synth.send([0x80, note, 0], time + noteDuration);
+}, midiScale, patternName).start(0);
 
+
+/*  [60, 62, 64, 66, 68, 70, 72, 74, 73, 69, 68, 67, 62, 60, 59, 56] */
+
+/*
+var seq = new Tone.Sequence(function(time, note){
+	//note on
+	synth.send([0x90, note, 100], time)
+  //note off
+  synth.send([0x80, note, 0], time + noteDuration)
+
+}, midiScale, "8n").start(0);
+*/
+
+if(Tone.Transport.state === "stopped"){
+  Tone.Transport.position = 0;
+  Tone.Transport.start();
+} else {
+  Tone.Transport.stop();
+}
+
+/*
 if(isPlaying){
   Tone.Transport.stop();
   //Tone.synth.dispose;
@@ -221,6 +277,8 @@ if(isPlaying){
   isPlaying = true;
   Tone.Transport.start("+0.1");
 }
+*/
+
 
 }
 
