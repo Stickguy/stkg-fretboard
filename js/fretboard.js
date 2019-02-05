@@ -12,9 +12,28 @@ var selectedNotes = [];
 
 var isPlaying = false;
 
+//init TinySynth without using default audiocontext
+var synth = new WebAudioTinySynth({internalcontext:0})
+
+//use ToneJS AudioContext and connect to Tone.Master
+//Tone.Master could be replaced with other components/effects
+synth.setAudioContext(Tone.context, Tone.Master)
+
+//set channel instrument program (0-127)
+synth.send([0xc0, 26]);
+
+var noteDuration = Tone.Time("8n");
+
+/* var pattern = ''; */
+
+var tempo = "120";
+Tone.Transport.bpm.value = tempo;
+
 document.documentElement.addEventListener('mousedown', function () {
   if (Tone.context.state !== 'running') Tone.context.resume();
 });
+
+var pattern = [];
 
 /* create default tonejs synth */
 //const synth = new Tone.Synth();
@@ -52,121 +71,26 @@ const synth = new Tone.MonoSynth(
 );
 */
 
-/* create tonejs sampler */
 /*
-const synth = new Tone.Sampler({
-        'A0': 'A0.[mp3|ogg]',
-        'A1': 'A1.[mp3|ogg]',
-        'A2': 'A2.[mp3|ogg]',
-        'A3': 'A3.[mp3|ogg]',
-        'A4': 'A4.[mp3|ogg]',
-        'A5': 'A5.[mp3|ogg]',
-        'A6': 'A6.[mp3|ogg]',
-        'A#0': 'As0.[mp3|ogg]',
-        'A#1': 'As1.[mp3|ogg]',
-        'A#2': 'As2.[mp3|ogg]',
-        'A#3': 'As3.[mp3|ogg]',
-        'A#4': 'As4.[mp3|ogg]',
-        'A#5': 'As5.[mp3|ogg]',
-        'A#6': 'As6.[mp3|ogg]',
-        'B0': 'B0.[mp3|ogg]',
-        'B1': 'B1.[mp3|ogg]',
-        'B2': 'B2.[mp3|ogg]',
-        'B3': 'B3.[mp3|ogg]',
-        'B4': 'B4.[mp3|ogg]',
-        'B5': 'B5.[mp3|ogg]',
-        'B6': 'B6.[mp3|ogg]',
-        'C0': 'C0.[mp3|ogg]',
-        'C1': 'C1.[mp3|ogg]',
-        'C2': 'C2.[mp3|ogg]',
-        'C3': 'C3.[mp3|ogg]',
-        'C4': 'C4.[mp3|ogg]',
-        'C5': 'C5.[mp3|ogg]',
-        'C6': 'C6.[mp3|ogg]',
-        'C7': 'C7.[mp3|ogg]',
-        'C#0': 'Cs0.[mp3|ogg]',
-        'C#1': 'Cs1.[mp3|ogg]',
-        'C#2': 'Cs2.[mp3|ogg]',
-        'C#3': 'Cs3.[mp3|ogg]',
-        'C#4': 'Cs4.[mp3|ogg]',
-        'C#5': 'Cs5.[mp3|ogg]',
-        'C#6': 'Cs6.[mp3|ogg]',
-        'D0': 'D0.[mp3|ogg]',
-        'D1': 'D1.[mp3|ogg]',
-        'D2': 'D2.[mp3|ogg]',
-        'D3': 'D3.[mp3|ogg]',
-        'D4': 'D4.[mp3|ogg]',
-        'D5': 'D5.[mp3|ogg]',
-        'D6': 'D6.[mp3|ogg]',
-        'D#0': 'Ds0.[mp3|ogg]',
-        'D#1': 'Ds1.[mp3|ogg]',
-        'D#2': 'Ds2.[mp3|ogg]',
-        'D#3': 'Ds3.[mp3|ogg]',
-        'D#4': 'Ds4.[mp3|ogg]',
-        'D#5': 'Ds5.[mp3|ogg]',
-        'D#6': 'Ds6.[mp3|ogg]',
-        'E0': 'E0.[mp3|ogg]',
-        'E1': 'E1.[mp3|ogg]',
-        'E2': 'E2.[mp3|ogg]',
-        'E3': 'E3.[mp3|ogg]',
-        'E4': 'E4.[mp3|ogg]',
-        'E5': 'E5.[mp3|ogg]',
-        'E6': 'E6.[mp3|ogg]',
-        'F0': 'F0.[mp3|ogg]',
-        'F1': 'F1.[mp3|ogg]',
-        'F2': 'F2.[mp3|ogg]',
-        'F3': 'F3.[mp3|ogg]',
-        'F4': 'F4.[mp3|ogg]',
-        'F5': 'F5.[mp3|ogg]',
-        'F6': 'F6.[mp3|ogg]',
-        'F#0': 'Fs0.[mp3|ogg]',
-        'F#1': 'Fs1.[mp3|ogg]',
-        'F#2': 'Fs2.[mp3|ogg]',
-        'F#3': 'Fs3.[mp3|ogg]',
-        'F#4': 'Fs4.[mp3|ogg]',
-        'F#5': 'Fs5.[mp3|ogg]',
-        'F#6': 'Fs6.[mp3|ogg]',
-        'G0': 'G0.[mp3|ogg]',
-        'G1': 'G1.[mp3|ogg]',
-        'G2': 'G2.[mp3|ogg]',
-        'G3': 'G3.[mp3|ogg]',
-        'G4': 'G4.[mp3|ogg]',
-        'G5': 'G5.[mp3|ogg]',
-        'G6': 'G6.[mp3|ogg]',
-        'G#0': 'Gs0.[mp3|ogg]',
-        'G#1': 'Gs1.[mp3|ogg]',
-        'G#2': 'Gs2.[mp3|ogg]',
-        'G#3': 'Gs3.[mp3|ogg]',
-        'G#4': 'Gs4.[mp3|ogg]',
-        'G#5': 'Gs5.[mp3|ogg]',
-        'G#6': 'Gs6.[mp3|ogg]'
-    }, {
-			"release" : 1,
-			"baseUrl" : "./sounds/piano/"
-		});
-*/
-//synth.oscillator.type = 'sine';
-
 //init TinySynth without using default audiocontext
 var synth = new WebAudioTinySynth({internalcontext:0})
 
-/*
+
 const gain = new Tone.Gain(0.3);
 gain.toMaster();
 synth.connect(gain);
-*/
+
 //use ToneJS AudioContext and connect to Tone.Master
 //Tone.Master could be replaced with other components/effects
 synth.setAudioContext(Tone.context, Tone.Master)
 
 //set channel instrument program (0-127)
-synth.send([0xc0, 25]);
+synth.send([0xc0, 0]);
 
 var noteDuration = Tone.Time("8n");
 
-
 var pattern = '';
-//var index = 0;
+*/
 
 /* Decide what method to use to draw notes on the fretboard */
 function whatIs(sequence) {
@@ -234,51 +158,23 @@ function playNotes(){
   myScale.forEach(function (note, index) {
   	midiScale.push(toMidi(note));
   });
-  console.table(midiScale);
 
-  var tempo = "120";
-  Tone.Transport.bpm.value = tempo;
   pattern = new Tone.Pattern(function(time, note){
-    //synth.triggerAttackRelease(note, "8n", time);
     //note on
     synth.send([0x90, note, 100], time);
     //note off
     synth.send([0x80, note, 0], time + noteDuration);
-}, midiScale, patternName).start(0);
+  }, midiScale, patternName).start(0);
 
-
-/*  [60, 62, 64, 66, 68, 70, 72, 74, 73, 69, 68, 67, 62, 60, 59, 56] */
-
-/*
-var seq = new Tone.Sequence(function(time, note){
-	//note on
-	synth.send([0x90, note, 100], time)
-  //note off
-  synth.send([0x80, note, 0], time + noteDuration)
-
-}, midiScale, "8n").start(0);
-*/
-
-if(Tone.Transport.state === "stopped"){
+if(!isPlaying){
   Tone.Transport.position = 0;
+  isPlaying = true;
   Tone.Transport.start();
 } else {
-  Tone.Transport.stop();
-}
-
-/*
-if(isPlaying){
-  Tone.Transport.stop();
-  //Tone.synth.dispose;
-  //Tone.Pattern.dispose;
-  pattern.dispose;
   isPlaying = false;
-} else {
-  isPlaying = true;
-  Tone.Transport.start("+0.1");
+  Tone.Transport.stop();
+  Tone.Transport.cancel();
 }
-*/
-
 
 }
 
