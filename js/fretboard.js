@@ -20,77 +20,15 @@ var synth = new WebAudioTinySynth({internalcontext:0})
 synth.setAudioContext(Tone.context, Tone.Master)
 
 //set channel instrument program (0-127)
-synth.send([0xc0, 26]);
+synth.send([0xc0, 26]); /* 26 Acoustic Guitar (steel) */
 
-var noteDuration = Tone.Time("8n");
-
-/* var pattern = ''; */
-
-var tempo = "120";
-Tone.Transport.bpm.value = tempo;
+var noteDuration = Tone.Time("4n");
 
 document.documentElement.addEventListener('mousedown', function () {
   if (Tone.context.state !== 'running') Tone.context.resume();
 });
 
 var pattern = [];
-
-/* create default tonejs synth */
-//const synth = new Tone.Synth();
-
-/* create tonejs monosynth */
-/*
-const synth = new Tone.MonoSynth(
-  {
-    "oscillator": {
-        "type": "fmsquare5",
-		"modulationType" : "triangle",
-      	"modulationIndex" : 2,
-      	"harmonicity" : 0.501
-    },
-    "filter": {
-        "Q": 1,
-        "type": "lowpass",
-        "rolloff": -24
-    },
-    "envelope": {
-        "attack": 0.01,
-        "decay": 0.1,
-        "sustain": 0.4,
-        "release": 2
-    },
-    "filterEnvelope": {
-        "attack": 0.01,
-        "decay": 0.1,
-        "sustain": 0.8,
-        "release": 1.5,
-        "baseFrequency": 50,
-        "octaves": 4.4
-    }
-}
-);
-*/
-
-/*
-//init TinySynth without using default audiocontext
-var synth = new WebAudioTinySynth({internalcontext:0})
-
-
-const gain = new Tone.Gain(0.3);
-gain.toMaster();
-synth.connect(gain);
-
-//use ToneJS AudioContext and connect to Tone.Master
-//Tone.Master could be replaced with other components/effects
-synth.setAudioContext(Tone.context, Tone.Master)
-
-//set channel instrument program (0-127)
-synth.send([0xc0, 0]);
-
-var noteDuration = Tone.Time("8n");
-
-var pattern = '';
-*/
 
 /* Decide what method to use to draw notes on the fretboard */
 function whatIs(sequence) {
@@ -151,6 +89,18 @@ function playNotes(){
 /* Get the desired pattern for playback */
   var patternOption = document.getElementById('patternSelect');
   var patternName = patternOption.options[patternOption.selectedIndex].value;
+
+/* Get the desired tempo for playback */
+var tempoOption = document.getElementById('tempoSelect');
+var currentTempo = tempoOption.options[tempoOption.selectedIndex].value;
+
+/* Get the desired volume for playback */
+var volOption = document.getElementById('volumeSelect');
+var currentVolume = volOption.options[volOption.selectedIndex].value;
+//console.log(currentVolume);
+Tone.Transport.bpm.value = currentTempo;
+synth.volume = currentVolume;
+
 
 /* Get selected notes */
   var myScale = selectedNotes;
@@ -375,6 +325,8 @@ var drawControlPanel = function() {
   ;
 
 var data = ["up", "down", "upDown", "downUp", "alternateUp", "alternateDown", "random", "randomWalk", "randomOnce"];
+var tempos = ["60", "70", "80", "90", "100", "110", "120", "130", "140", "160", "180", "200"];
+var vols  = ["-Infinity", "-30", "-25", "-20", "-15", "-10", "-5", "0"];
 
 d3.select("#" + id)
     .selectAll(".cpanel")
@@ -402,6 +354,62 @@ d3.select("#" + id)
 	.append('option')
 	.text(function (d) { return d; })
   ;
+
+  d3.select("#" + id)
+      .selectAll(".cpanel")
+      .append("div")
+      .attr("class", "tempoSelectholder inline")
+      ;
+
+      d3.select("#" + id)
+          .selectAll(".tempoSelectholder")
+          .append("label")
+          .text("Tempo")
+          ;
+
+    var tempodropdown = d3.select("#" + id)
+    .selectAll(".tempoSelectholder")
+    .append("select")
+    .attr("id", "tempoSelect")
+    .attr("name", "tempo-list")
+    .on('change',onchange)
+    ;
+
+    var otempoptions = tempodropdown
+    .selectAll('#tempoSelect')
+  	.data(tempos).enter()
+  	.append('option')
+  	.text(function (d) { return d; })
+    ;
+
+    d3.select("#" + id)
+    .selectAll(".cpanel")
+    .append("div")
+    .attr("class", "volumeSelectholder inline")
+    ;
+
+    d3.select("#" + id)
+        .selectAll(".volumeSelectholder")
+        .append("label")
+        .text("volume")
+        ;
+
+  var volumedropdown = d3.select("#" + id)
+  .selectAll(".volumeSelectholder")
+  .append("select")
+  .attr("id", "volumeSelect")
+  .attr("name", "volume-list")
+  .on('change',onchange)
+  ;
+
+  var ovolumeptions = volumedropdown
+  .selectAll('#volumeSelect')
+  .data(vols).enter()
+  .append('option')
+  .text(function (d) { return d; })
+  ;
+
+  ovolumeptions.property("selected", function(d){return d === "-15"});
 }
 
 
