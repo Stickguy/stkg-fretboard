@@ -82,7 +82,7 @@ function toMidi(note) {
 
 var verbatim = function(d) { return d; };
 
-  // Works but has audio artifacts
+  // Play Notes
 function playNotes(){
   d3.select(".playerButton").classed("active", d3.select(".playerButton").classed("active") ? false : true)
 
@@ -93,13 +93,11 @@ function playNotes(){
 /* Get the desired tempo for playback */
 var tempoOption = document.getElementById('tempoSelect');
 var currentTempo = tempoOption.options[tempoOption.selectedIndex].value;
+Tone.Transport.bpm.value = currentTempo;
 
 /* Get the desired volume for playback */
-var volOption = document.getElementById('volumeSelect');
-var currentVolume = volOption.options[volOption.selectedIndex].value;
-//console.log(currentVolume);
-Tone.Transport.bpm.value = currentTempo;
-synth.volume = currentVolume;
+var currentVolume = document.getElementById('volumeSelect').value;
+
 
 
 /* Get selected notes */
@@ -111,9 +109,18 @@ synth.volume = currentVolume;
 
   pattern = new Tone.Pattern(function(time, note){
     //note on
-    synth.send([0x90, note, 100], time);
+    synth.send([0x90, note, currentVolume], time);
+    d3.selectAll("#fretNoteGroup .note")
+      .style('stroke-width','1px')
+      ;
+
+    d3.selectAll(".m" + note + " .note")
+    /*  .style('stroke','red') */
+      .style('stroke-width','4px')
+    ;
     //note off
     synth.send([0x80, note, 0], time + noteDuration);
+
   }, midiScale, patternName).start(0);
 
 if(!isPlaying){
@@ -326,7 +333,7 @@ var drawControlPanel = function() {
 
 var data = ["up", "down", "upDown", "downUp", "alternateUp", "alternateDown", "random", "randomWalk", "randomOnce"];
 var tempos = ["60", "70", "80", "90", "100", "110", "120", "130", "140", "160", "180", "200"];
-var vols  = ["-Infinity", "-30", "-25", "-20", "-15", "-10", "-5", "0"];
+//var vols  = ["-Infinity", "-30", "-25", "-20", "-15", "-10", "-5", "0"];
 
 d3.select("#" + id)
     .selectAll(".cpanel")
@@ -382,34 +389,27 @@ d3.select("#" + id)
   	.text(function (d) { return d; })
     ;
 
-    d3.select("#" + id)
-    .selectAll(".cpanel")
-    .append("div")
-    .attr("class", "volumeSelectholder inline")
-    ;
-
-    d3.select("#" + id)
-        .selectAll(".volumeSelectholder")
-        .append("label")
-        .text("volume")
-        ;
-
-  var volumedropdown = d3.select("#" + id)
-  .selectAll(".volumeSelectholder")
-  .append("select")
-  .attr("id", "volumeSelect")
-  .attr("name", "volume-list")
-  .on('change',onchange)
+  d3.select("#" + id)
+  .selectAll(".cpanel")
+  .append("div")
+  .attr("class", "volumeSelectholder inline")
   ;
 
-  var ovolumeptions = volumedropdown
-  .selectAll('#volumeSelect')
-  .data(vols).enter()
-  .append('option')
-  .text(function (d) { return d; })
-  ;
+  d3.select("#" + id)
+      .selectAll(".volumeSelectholder")
+      .append("label")
+      .text("volume")
+      ;
 
-  ovolumeptions.property("selected", function(d){return d === "-15"});
+  var timeSlider = d3.select("#" + id)
+          .selectAll(".volumeSelectholder")
+          .append("input")
+          .attr("id", "volumeSelect")
+          .attr("type", "range")
+          .attr("min", 0)
+          .attr("max", 127);
+
+  timeSlider.property("value", 100);
 }
 
 
@@ -483,6 +483,7 @@ var tmpddots = ndots.slice();
           var fretNoteGroup = instance.svgContainer
                             .append("g")
                             .attr("id", "fretNoteGroup")
+                            .attr("class", "m" + toMidi(note))
                             ;
             var noteCircles = fretNoteGroup.append("circle")
                 .attr("class", "note")
