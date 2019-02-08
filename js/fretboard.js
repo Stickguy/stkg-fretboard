@@ -8,7 +8,13 @@ var allNotes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
 var colors = ["red", "green", "blue", "black", "purple", "gray", "orange", "lightgray", "red"];
 
+var myScale = [];
+
 var selectedNotes = [];
+
+var patternName = "up";
+
+var currentVolume = 120;
 
 var isPlaying = false;
 
@@ -20,7 +26,7 @@ var synth = new WebAudioTinySynth({internalcontext:0})
 synth.setAudioContext(Tone.context, Tone.Master)
 
 //set channel instrument program (0-127)
-synth.send([0xc0, 26]); /* 26 Acoustic Guitar (steel) */
+synth.send([0xc0, 27]); /* 26 Electric Guitar (jazz) */
 
 var noteDuration = Tone.Time("4n");
 
@@ -86,22 +92,8 @@ var verbatim = function(d) { return d; };
 function playNotes(){
   d3.select(".playerButton").classed("active", d3.select(".playerButton").classed("active") ? false : true)
 
-/* Get the desired pattern for playback */
-  var patternOption = document.getElementById('patternSelect');
-  var patternName = patternOption.options[patternOption.selectedIndex].value;
-
-/* Get the desired tempo for playback */
-var tempoOption = document.getElementById('tempoSelect');
-var currentTempo = tempoOption.options[tempoOption.selectedIndex].value;
-Tone.Transport.bpm.value = currentTempo;
-
-/* Get the desired volume for playback */
-var currentVolume = document.getElementById('volumeSelect').value;
-
-
-
 /* Get selected notes */
-  var myScale = selectedNotes;
+  myScale = selectedNotes;
   var midiScale = [];
   myScale.forEach(function (note, index) {
   	midiScale.push(toMidi(note));
@@ -110,12 +102,12 @@ var currentVolume = document.getElementById('volumeSelect').value;
   pattern = new Tone.Pattern(function(time, note){
     //note on
     synth.send([0x90, note, currentVolume], time);
+    //clear active notes
     d3.selectAll("#fretNoteGroup .note")
       .style('stroke-width','1px')
       ;
-
+    //stroke active notes
     d3.selectAll(".m" + note + " .note")
-    /*  .style('stroke','red') */
       .style('stroke-width','4px')
     ;
     //note off
@@ -308,9 +300,24 @@ if(config.instrument) {
             ;
     };
 
-function onchange() {
-  var sel = document.getElementById('patternSelect');
-  console.log(sel.options[sel.selectedIndex].value)
+    function updateTempo()  {
+      var tempoOption = document.getElementById('tempoSelect');
+      var currentTempo = tempoOption.options[tempoOption.selectedIndex].value;
+      Tone.Transport.bpm.value = currentTempo;
+    };
+
+    function updatePattern()  {
+      var patternOption = document.getElementById('patternSelect');
+      patternName = patternOption.options[patternOption.selectedIndex].value;
+      pattern.pattern = patternName;
+    };
+
+    function updateVolume() {
+  currentVolume = document.getElementById('volumeSelect').value;
+    };
+
+    function updateNotes() {
+  currentVolume = document.getElementById('volumeSelect').value;
     };
 
 var drawControlPanel = function() {
@@ -326,14 +333,12 @@ var drawControlPanel = function() {
   .selectAll(".cpanel")
   .append("a")
   .attr("class", "playerButton play")
-  /*.text("Play")*/
   .html('<span class="play">Play</span><span class="pause">Pause</span>')
   .on("click", playNotes)
   ;
 
 var data = ["up", "down", "upDown", "downUp", "alternateUp", "alternateDown", "random", "randomWalk", "randomOnce"];
 var tempos = ["60", "70", "80", "90", "100", "110", "120", "130", "140", "160", "180", "200"];
-//var vols  = ["-Infinity", "-30", "-25", "-20", "-15", "-10", "-5", "0"];
 
 d3.select("#" + id)
     .selectAll(".cpanel")
@@ -344,7 +349,7 @@ d3.select("#" + id)
     d3.select("#" + id)
         .selectAll(".patternSelectholder")
         .append("label")
-        .text("Pattern")
+        .text("Pattern:")
         ;
 
   var dropDown = d3.select("#" + id)
@@ -352,7 +357,7 @@ d3.select("#" + id)
   .append("select")
   .attr("id", "patternSelect")
   .attr("name", "pattern-list")
-  .on('change',onchange)
+  .on('change',updatePattern)
   ;
 
   var options = dropDown
@@ -371,7 +376,7 @@ d3.select("#" + id)
       d3.select("#" + id)
           .selectAll(".tempoSelectholder")
           .append("label")
-          .text("Tempo")
+          .text("Tempo:")
           ;
 
     var tempodropdown = d3.select("#" + id)
@@ -379,7 +384,7 @@ d3.select("#" + id)
     .append("select")
     .attr("id", "tempoSelect")
     .attr("name", "tempo-list")
-    .on('change',onchange)
+    .on('change',updateTempo)
     ;
 
     var otempoptions = tempodropdown
@@ -388,6 +393,8 @@ d3.select("#" + id)
   	.append('option')
   	.text(function (d) { return d; })
     ;
+
+    otempoptions.property("selected", function(d){return d === "120"});
 
   d3.select("#" + id)
   .selectAll(".cpanel")
@@ -398,7 +405,7 @@ d3.select("#" + id)
   d3.select("#" + id)
       .selectAll(".volumeSelectholder")
       .append("label")
-      .text("volume")
+      .text("Volume:")
       ;
 
   var timeSlider = d3.select("#" + id)
@@ -407,7 +414,9 @@ d3.select("#" + id)
           .attr("id", "volumeSelect")
           .attr("type", "range")
           .attr("min", 0)
-          .attr("max", 127);
+          .attr("max", 127)
+          .on('change',updateVolume)
+          ;
 
   timeSlider.property("value", 100);
 }
@@ -582,6 +591,14 @@ var tmpddots = ndots.slice();
             let what = whatIs(section);
             instance[what](section);
         });
+        /* Update Note Pattern if Playing  */
+        if(isPlaying){
+          var updatedMidiScale = [];
+          selectedNotes.forEach(function (note, index) {
+            updatedMidiScale.push(toMidi(note));
+          });
+         pattern.values = updatedMidiScale;
+        }
     };
 
 

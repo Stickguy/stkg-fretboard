@@ -488,7 +488,7 @@ function WebAudioTinySynth(opt){
           }
         }.bind(this),60
       );
-      console.log("internalcontext:"+this.internalcontext)
+      //console.log("internalcontext:"+this.internalcontext)
       if(this.internalcontext){
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
         this.setAudioContext(new AudioContext());
@@ -898,7 +898,7 @@ function WebAudioTinySynth(opt){
     },
     setProgram:function(ch,v){
       if(this.debug)
-        console.log("Pg("+ch+")="+v);
+      //  console.log("Pg("+ch+")="+v);
       this.pg[ch]=v;
     },
     setBend:function(ch,v,t){
@@ -1000,7 +1000,7 @@ function WebAudioTinySynth(opt){
           var ds=[];
           for(var ii=0;ii<msg.length;++ii)
             ds.push(msg[ii].toString(16));
-          console.log(ds);
+          //console.log(ds);
         }
         if(msg[1]==0x41&&msg[2]==0x10&&msg[3]==0x42&&msg[4]==0x12&&msg[5]==0x40){
           if((msg[6]&0xf0)==0x10&&msg[7]==0x15){
@@ -1028,7 +1028,7 @@ function WebAudioTinySynth(opt){
       if(!dest)
         this.dest=actx.destination;
       this.tsdiff=performance.now()*.001-this.actx.currentTime;
-      console.log("TSDiff:"+this.tsdiff);
+      //console.log("TSDiff:"+this.tsdiff);
       this.out=this.actx.createGain();
       this.comp=this.actx.createDynamicsCompressor();
       var blen=this.actx.sampleRate*.5|0;

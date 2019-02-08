@@ -18,3 +18,7 @@ label, select {
 .hidden {
   display:none;
 }
+
+#modepanel div {
+  margin-right: 15px;
+}

@@ -36,7 +36,7 @@
     <option>Choose a Root Note</option>
 </select>
 
-<label for="selectOctave">Octave:</label>
+<label for="selectOctave">Starting Octave:</label>
 <select id="selectOctave" disabled>
     <option selected>None</option>
     <option>-1</option>
@@ -52,7 +52,7 @@
     <option>9</option>
 </select>
 
-<label for="selectRange">Range:</label>
+<label for="selectRange">Octave Range:</label>
 <select id="selectRange" disabled>
     <option selected>1</option>
     <option>2</option>
@@ -297,9 +297,7 @@ $("#selectTuning").change(function() {
 
 <p>
   PICKUP: Audio player:<br />
-  Adjust playblack to work like: <a href="https://www.guitarland.com/MusicTheoryWithToneJS/PlayMajorScale.html">This example</a><br />
-  <br />
-  Goal: All controls should update while playback is occuring
+  Create default octave range if no starting octave is selected <br />
 </p>
 
 </body>

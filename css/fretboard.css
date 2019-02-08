@@ -24,6 +24,10 @@
   user-select: none;
 }
 
+.cpanel div {
+  margin-right: 15px;
+}
+
 .playerButton {
   cursor: pointer;
 }
